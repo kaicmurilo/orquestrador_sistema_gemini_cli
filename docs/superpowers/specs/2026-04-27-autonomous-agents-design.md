@@ -87,29 +87,20 @@ python orchestrator.py
 
 ## 4. Gemini CLI Integration
 
-Each agent calls Gemini via subprocess:
+Each agent calls Gemini via subprocess with `--yolo` flag enabled globally. `--yolo` disables confirmation prompts, enables web search, and allows unrestricted file system modifications — required for agents to read/write workspace files autonomously.
 
 ```python
 import subprocess
 
-def call_gemini(prompt: str) -> str:
-    result = subprocess.run(
-        ["gemini", "-p", prompt],
-        capture_output=True, text=True
-    )
+def call_gemini(prompt: str, allow_modifications: bool = True) -> str:
+    cmd = ["gemini", "-p", prompt]
+    if allow_modifications:
+        cmd.append("--yolo")
+    result = subprocess.run(cmd, capture_output=True, text=True)
     return result.stdout.strip()
 ```
 
-`research_agent` uses `--yolo` flag to enable web search:
-
-```python
-def call_gemini_search(prompt: str) -> str:
-    result = subprocess.run(
-        ["gemini", "-p", prompt, "--yolo"],
-        capture_output=True, text=True
-    )
-    return result.stdout.strip()
-```
+All agents use `allow_modifications=True` by default. Pass `False` only for read-only queries where file system access is not needed.
 
 Agents signal completion by updating `tasks.json` directly. Orchestrator runs a polling loop detecting status changes and dispatching next ready tasks.
 
