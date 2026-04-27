@@ -7,7 +7,14 @@ class TaskManager:
         self.tasks_file = Path(tasks_file)
 
     def load(self) -> list[dict]:
-        data = json.loads(self.tasks_file.read_text())
+        if not self.tasks_file.exists():
+            raise FileNotFoundError(f"tasks file not found: {self.tasks_file}")
+        try:
+            data = json.loads(self.tasks_file.read_text())
+        except json.JSONDecodeError as e:
+            raise ValueError(f"tasks file contains invalid JSON ({self.tasks_file}): {e}") from e
+        if "tasks" not in data:
+            raise ValueError(f"tasks file missing 'tasks' key: {self.tasks_file}")
         return data["tasks"]
 
     def _save(self, tasks: list[dict]):
@@ -21,6 +28,8 @@ class TaskManager:
                 if error is not None:
                     task["error"] = error
                 break
+        else:
+            raise KeyError(f"task_id '{task_id}' not found in {self.tasks_file}")
         self._save(tasks)
 
     def increment_retries(self, task_id: str):
@@ -29,6 +38,8 @@ class TaskManager:
             if task["id"] == task_id:
                 task["retries"] += 1
                 break
+        else:
+            raise KeyError(f"task_id '{task_id}' not found in {self.tasks_file}")
         self._save(tasks)
 
     def get_next_ready_task(self) -> dict | None:
@@ -41,7 +52,8 @@ class TaskManager:
         return None
 
     def all_done(self) -> bool:
-        return all(t["status"] == "done" for t in self.load())
+        tasks = self.load()
+        return bool(tasks) and all(t["status"] == "done" for t in tasks)
 
     def any_blocked(self) -> bool:
         return any(t["status"] == "blocked" for t in self.load())

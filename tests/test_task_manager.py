@@ -88,3 +88,22 @@ def test_any_blocked(tmp_tasks):
     assert not tm.any_blocked()
     tm.update_status("task_001", "blocked")
     assert tm.any_blocked()
+
+
+def test_update_status_unknown_task_id(tmp_tasks):
+    tm = TaskManager(tmp_tasks)
+    with pytest.raises(KeyError):
+        tm.update_status("nonexistent", "done")
+
+
+def test_all_done_returns_false_for_empty_tasks(tmp_path):
+    tasks_file = tmp_path / "tasks.json"
+    tasks_file.write_text(json.dumps({"tasks": []}))
+    tm = TaskManager(tasks_file)
+    assert not tm.all_done()
+
+
+def test_load_raises_on_missing_file(tmp_path):
+    tm = TaskManager(tmp_path / "nonexistent.json")
+    with pytest.raises(FileNotFoundError):
+        tm.load()
