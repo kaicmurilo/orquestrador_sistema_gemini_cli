@@ -107,3 +107,25 @@ def test_load_raises_on_missing_file(tmp_path):
     tm = TaskManager(tmp_path / "nonexistent.json")
     with pytest.raises(FileNotFoundError):
         tm.load()
+
+
+def test_load_raises_on_invalid_json(tmp_path):
+    tasks_file = tmp_path / "tasks.json"
+    tasks_file.write_text("not valid json {{{")
+    tm = TaskManager(tasks_file)
+    with pytest.raises(ValueError, match="invalid JSON"):
+        tm.load()
+
+
+def test_load_raises_on_missing_tasks_key(tmp_path):
+    tasks_file = tmp_path / "tasks.json"
+    tasks_file.write_text(json.dumps({"other": []}))
+    tm = TaskManager(tasks_file)
+    with pytest.raises(ValueError, match="missing 'tasks' key"):
+        tm.load()
+
+
+def test_increment_retries_unknown_task_id(tmp_tasks):
+    tm = TaskManager(tmp_tasks)
+    with pytest.raises(KeyError):
+        tm.increment_retries("nonexistent")
