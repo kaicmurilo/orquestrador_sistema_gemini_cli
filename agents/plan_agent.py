@@ -1,5 +1,4 @@
 import json
-import re
 from pathlib import Path
 from agents.base_agent import call_gemini
 from utils.task_manager import TaskManager
@@ -66,10 +65,15 @@ Rules:
 
 
 def _extract_json(text: str) -> dict:
-    match = re.search(r'\{[\s\S]*\}', text)
-    if not match:
-        raise ValueError(f"No JSON found in output: {text[:200]}")
-    return json.loads(match.group())
+    decoder = json.JSONDecoder()
+    for i, char in enumerate(text):
+        if char == '{':
+            try:
+                obj, _ = decoder.raw_decode(text, i)
+                return obj
+            except json.JSONDecodeError:
+                continue
+    raise ValueError(f"No valid JSON object found in output: {text[:200]}")
 
 
 class PlanAgent:
@@ -97,6 +101,8 @@ class PlanAgent:
                 idea=idea, architecture=architecture, stack=stack
             ))
             tasks_data = _extract_json(tasks_raw)
+            if "tasks" not in tasks_data:
+                raise ValueError(f"Gemini tasks JSON missing 'tasks' key: {str(tasks_data)[:200]}")
             tasks_out = self.output_dir / "tasks.json"
             tasks_out.write_text(json.dumps(tasks_data, indent=2))
             self.logger.info(f"tasks.json written with {len(tasks_data['tasks'])} tasks")
