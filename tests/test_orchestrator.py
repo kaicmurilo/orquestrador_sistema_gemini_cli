@@ -55,7 +55,7 @@ def test_orchestrator_runs_research_then_plan(tmp_env):
         mock_research_inst.run.side_effect = research_side_effect
         mock_plan_inst.run.side_effect = plan_side_effect
 
-        orch = Orchestrator(tasks_file=tasks_file, output_dir=output_dir)
+        orch = Orchestrator(tasks_file=tasks_file, output_dir=output_dir, poll_interval=0)
         orch.run()
 
     mock_research_inst.run.assert_called_once_with("task_research")
@@ -68,8 +68,7 @@ def test_orchestrator_retries_on_failure(tmp_env):
 
     call_count = {"n": 0}
 
-    with patch("orchestrator.ResearchAgent") as MockResearch, \
-         patch("orchestrator.PlanAgent"):
+    with patch("orchestrator.ResearchAgent") as MockResearch:
 
         mock_inst = MagicMock()
         MockResearch.return_value = mock_inst
@@ -92,7 +91,7 @@ def test_orchestrator_retries_on_failure(tmp_env):
                 'utils.task_manager', fromlist=['TaskManager']
             ).TaskManager(tasks_file).update_status(tid, "done")
 
-            orch = Orchestrator(tasks_file=tasks_file, output_dir=output_dir, max_retries=3)
+            orch = Orchestrator(tasks_file=tasks_file, output_dir=output_dir, max_retries=3, poll_interval=0)
             orch.run()
 
     assert call_count["n"] == 3
@@ -114,6 +113,6 @@ def test_orchestrator_halts_after_max_retries(tmp_env):
 
         mock_inst.run.side_effect = always_fail
 
-        orch = Orchestrator(tasks_file=tasks_file, output_dir=output_dir, max_retries=3)
+        orch = Orchestrator(tasks_file=tasks_file, output_dir=output_dir, max_retries=3, poll_interval=0)
         with pytest.raises(SystemExit):
             orch.run()

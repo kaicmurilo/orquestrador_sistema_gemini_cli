@@ -1,4 +1,5 @@
 import sys
+import json
 import time
 from pathlib import Path
 from utils.task_manager import TaskManager
@@ -17,7 +18,6 @@ AGENT_MAP = {
 
 
 def init_pipeline_tasks(tasks_file: Path, output_dir: Path):
-    import json
     data = {
         "tasks": [
             {
@@ -46,10 +46,11 @@ def init_pipeline_tasks(tasks_file: Path, output_dir: Path):
 
 
 class Orchestrator:
-    def __init__(self, tasks_file: Path, output_dir: Path, max_retries: int = MAX_RETRIES):
+    def __init__(self, tasks_file: Path, output_dir: Path, max_retries: int = MAX_RETRIES, poll_interval: int = POLL_INTERVAL):
         self.tasks_file = Path(tasks_file)
         self.output_dir = Path(output_dir)
         self.max_retries = max_retries
+        self.poll_interval = poll_interval
         self.tm = TaskManager(self.tasks_file)
         self.logger = get_logger("orchestrator")
 
@@ -62,21 +63,15 @@ class Orchestrator:
             self.tm.update_status(task_id, "blocked", error=f"no agent for type {task_type}")
             return
 
-        import orchestrator as _self_module
-        _live_map = {
-            "research": _self_module.ResearchAgent,
-            "planning": _self_module.PlanAgent,
-        }
-        AgentClass = _live_map[task_type]
-
-        if task_type == "planning":
-            agent = AgentClass(tasks_file=self.tasks_file, output_dir=self.output_dir)
-        else:
-            agent = AgentClass(tasks_file=self.tasks_file)
+        AgentClass = getattr(sys.modules[__name__], AGENT_MAP[task_type].__name__)
 
         retries = 0
         while retries < self.max_retries:
             try:
+                if task_type == "planning":
+                    agent = AgentClass(tasks_file=self.tasks_file, output_dir=self.output_dir)
+                else:
+                    agent = AgentClass(tasks_file=self.tasks_file)
                 self.logger.info(f"Dispatching {task_type} agent for {task_id} (attempt {retries + 1})")
                 agent.run(task_id)
                 return
@@ -86,7 +81,7 @@ class Orchestrator:
                 self.logger.warning(f"Task {task_id} failed (attempt {retries}): {e}")
                 if retries < self.max_retries:
                     self.tm.update_status(task_id, "pending")
-                    time.sleep(POLL_INTERVAL)
+                    time.sleep(self.poll_interval)
 
         self.logger.error(f"Task {task_id} blocked after {self.max_retries} retries")
         self.tm.update_status(task_id, "blocked", error=f"exceeded max retries ({self.max_retries})")
@@ -101,7 +96,7 @@ class Orchestrator:
 
             task = self.tm.get_next_ready_task()
             if task is None:
-                time.sleep(POLL_INTERVAL)
+                time.sleep(self.poll_interval)
                 continue
 
             self._dispatch(task)
