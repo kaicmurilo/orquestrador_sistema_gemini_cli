@@ -4,9 +4,9 @@
       "id": "task_001",
       "type": "code",
       "status": "pending",
-      "description": "Initialize FastAPI backend application with basic configuration, CORS middleware, and root health check endpoint.",
+      "description": "Configurar o schema do Prisma (PostgreSQL) definindo modelos para Suppliers, EnterpriseBuyers, RawTransactions, ClassifiedEmissions e AuditLogs.",
       "depends_on": [],
-      "output_file": "workspace/backend/main.py",
+      "output_file": "workspace/backend/prisma/schema.prisma",
       "retries": 0,
       "error": null
     },
@@ -14,23 +14,11 @@
       "id": "task_002",
       "type": "code",
       "status": "pending",
-      "description": "Define SQLAlchemy models for Companies, FinancialTransactions, EmissionFactors, and ESGReports to establish the database schema.",
+      "description": "Implementar o servi\u00e7o de autentica\u00e7\u00e3o JWT no NestJS para diferenciar acessos entre PMEs e Compradores Enterprise.",
       "depends_on": [
         "task_001"
       ],
-      "output_file": "workspace/backend/models.py",
-      "retries": 0,
-      "error": null
-    },
-    {
-      "id": "task_003",
-      "type": "code",
-      "status": "pending",
-      "description": "Implement the AI Categorization service using OpenAI GPT-4o-mini to map financial spend descriptions to EXIOBASE emission categories.",
-      "depends_on": [
-        "task_002"
-      ],
-      "output_file": "workspace/backend/services/ai_mapper.py",
+      "output_file": "workspace/backend/src/auth/auth.service.ts",
       "retries": 0,
       "error": null
     },
@@ -38,11 +26,9 @@
       "id": "task_004",
       "type": "code",
       "status": "pending",
-      "description": "Build the Carbon Calculation engine that applies emission factors to categorized spend data to estimate Scope 1, 2, and 3 CO2e.",
-      "depends_on": [
-        "task_003"
-      ],
-      "output_file": "workspace/backend/services/calculator.py",
+      "description": "Criar o servi\u00e7o AI Classification Engine que utiliza a API da OpenAI para categorizar descri\u00e7\u00f5es de faturas em Escopos 1, 2 ou 3.",
+      "depends_on": [],
+      "output_file": "workspace/backend/src/ai/classification.service.ts",
       "retries": 0,
       "error": null
     },
@@ -50,11 +36,12 @@
       "id": "task_005",
       "type": "code",
       "status": "pending",
-      "description": "Create API endpoints for ingesting financial data (mocking Codat/Plaid) and retrieving calculated carbon footprints per category.",
+      "description": "Desenvolver o Emission Calculation Engine para aplicar fatores de emiss\u00e3o (DEFRA/EPA) aos dados categorizados pela IA.",
       "depends_on": [
+        "task_001",
         "task_004"
       ],
-      "output_file": "workspace/backend/api/ingestion.py",
+      "output_file": "workspace/backend/src/calculator/emission.service.ts",
       "retries": 0,
       "error": null
     },
@@ -62,9 +49,11 @@
       "id": "task_006",
       "type": "code",
       "status": "pending",
-      "description": "Initialize Next.js 14 frontend with TypeScript, Tailwind CSS, and the basic App Router structure including a RootLayout.",
-      "depends_on": [],
-      "output_file": "workspace/frontend/app/layout.tsx",
+      "description": "Implementar o conector de integra\u00e7\u00e3o com ERPs (mockando Codat.io) para extra\u00e7\u00e3o de faturas e dados cont\u00e1beis brutos.",
+      "depends_on": [
+        "task_001"
+      ],
+      "output_file": "workspace/backend/src/integrations/codat.service.ts",
       "retries": 0,
       "error": null
     },
@@ -72,11 +61,11 @@
       "id": "task_007",
       "type": "code",
       "status": "pending",
-      "description": "Develop a multi-step 'TurboTax style' Wizard component for collecting qualitative ESG disclosure data from SMB users.",
+      "description": "Criar o gerador de relat\u00f3rios Audit-Ready em formato JSON e PDF seguindo os padr\u00f5es CSRD/VSME.",
       "depends_on": [
-        "task_006"
+        "task_005"
       ],
-      "output_file": "workspace/frontend/components/ESGProjectWizard.tsx",
+      "output_file": "workspace/backend/src/reports/generator.service.ts",
       "retries": 0,
       "error": null
     },
@@ -84,12 +73,9 @@
       "id": "task_008",
       "type": "code",
       "status": "pending",
-      "description": "Implement the main Analytics Dashboard page showing carbon footprint summaries, trends, and spend-based insights.",
-      "depends_on": [
-        "task_005",
-        "task_006"
-      ],
-      "output_file": "workspace/frontend/app/dashboard/page.tsx",
+      "description": "Configurar o layout principal do Frontend Next.js com suporte a temas e navega\u00e7\u00e3o condicional por tipo de usu\u00e1rio.",
+      "depends_on": [],
+      "output_file": "workspace/frontend/src/app/layout.tsx",
       "retries": 0,
       "error": null
     },
@@ -97,11 +83,11 @@
       "id": "task_009",
       "type": "code",
       "status": "pending",
-      "description": "Create the 'Sustainability Passport' public/shared view allowing SMBs to display their verified ESG credentials to enterprise customers.",
+      "description": "Construir o Dashboard do Fornecedor PME para visualiza\u00e7\u00e3o de score ESG e status de conformidade.",
       "depends_on": [
         "task_008"
       ],
-      "output_file": "workspace/frontend/app/passport/page.tsx",
+      "output_file": "workspace/frontend/src/app/dashboard/supplier/page.tsx",
       "retries": 0,
       "error": null
     },
@@ -109,11 +95,11 @@
       "id": "task_010",
       "type": "code",
       "status": "pending",
-      "description": "Implement the Report Generation service in the backend to produce formatted Markdown and PDF reports based on CSRD and GRI standards.",
+      "description": "Desenvolver o componente de interface para conex\u00e3o com ERPs e upload de evid\u00eancias documentais.",
       "depends_on": [
-        "task_004"
+        "task_008"
       ],
-      "output_file": "workspace/backend/services/report_generator.py",
+      "output_file": "workspace/frontend/src/components/ERPConnectionFlow.tsx",
       "retries": 0,
       "error": null
     },
@@ -121,11 +107,11 @@
       "id": "task_011",
       "type": "code",
       "status": "pending",
-      "description": "Develop API endpoints for generating, listing, and downloading ESG reports and their associated audit evidence.",
+      "description": "Implementar gr\u00e1ficos de visualiza\u00e7\u00e3o de pegada de carbono por categoria utilizando Recharts no frontend.",
       "depends_on": [
-        "task_010"
+        "task_009"
       ],
-      "output_file": "workspace/backend/api/reports.py",
+      "output_file": "workspace/frontend/src/components/EmissionCharts.tsx",
       "retries": 0,
       "error": null
     },
@@ -133,12 +119,15 @@
       "id": "task_012",
       "type": "code",
       "status": "pending",
-      "description": "Create a comprehensive README.md with setup instructions, API documentation overview, and environment variable requirements for the full stack.",
+      "description": "Orquestrar todos os m\u00f3dulos no AppModule do NestJS e configurar os controllers principais da API.",
       "depends_on": [
-        "task_009",
-        "task_011"
+        "task_002",
+        "task_004",
+        "task_005",
+        "task_006",
+        "task_007"
       ],
-      "output_file": "workspace/README.md",
+      "output_file": "workspace/backend/src/app.module.ts",
       "retries": 0,
       "error": null
     }

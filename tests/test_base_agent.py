@@ -1,37 +1,44 @@
+import json
 import subprocess
 import pytest
 from unittest.mock import patch, MagicMock
 from agents.base_agent import call_gemini
 
 
-def test_call_gemini_returns_stdout():
+def _json_stdout(response: str) -> str:
+    return json.dumps({"response": response, "stats": {}})
+
+
+def test_call_gemini_returns_response_field():
     mock_result = MagicMock()
-    mock_result.stdout = "  gemini output  "
+    mock_result.stdout = _json_stdout("gemini output")
     mock_result.returncode = 0
 
     with patch("agents.base_agent.subprocess.run", return_value=mock_result) as mock_run:
         result = call_gemini("test prompt")
         assert result == "gemini output"
         mock_run.assert_called_once_with(
-            ["gemini", "-p", "test prompt", "--yolo"],
+            ["gemini", "-p", "test prompt", "--output-format", "json", "--yolo"],
             capture_output=True, text=True, timeout=120
         )
 
 
 def test_call_gemini_without_modifications():
     mock_result = MagicMock()
-    mock_result.stdout = "output"
+    mock_result.stdout = _json_stdout("output")
     mock_result.returncode = 0
 
     with patch("agents.base_agent.subprocess.run", return_value=mock_result) as mock_run:
         call_gemini("prompt", allow_modifications=False)
         cmd = mock_run.call_args[0][0]
         assert "--yolo" not in cmd
+        assert "--output-format" in cmd
+        assert "json" in cmd
 
 
 def test_call_gemini_raises_on_empty_output():
     mock_result = MagicMock()
-    mock_result.stdout = "   "
+    mock_result.stdout = _json_stdout("   ")
     mock_result.returncode = 0
 
     with patch("agents.base_agent.subprocess.run", return_value=mock_result):
@@ -41,7 +48,7 @@ def test_call_gemini_raises_on_empty_output():
 
 def test_call_gemini_raises_on_nonzero_returncode():
     mock_result = MagicMock()
-    mock_result.stdout = "some output"
+    mock_result.stdout = _json_stdout("some output")
     mock_result.returncode = 1
     mock_result.stderr = "gemini error"
 
@@ -55,3 +62,13 @@ def test_call_gemini_raises_on_timeout():
                side_effect=subprocess.TimeoutExpired(cmd="gemini", timeout=120)):
         with pytest.raises(RuntimeError, match="timed out"):
             call_gemini("prompt")
+
+
+def test_call_gemini_fallback_on_invalid_json():
+    mock_result = MagicMock()
+    mock_result.stdout = "plain text response"
+    mock_result.returncode = 0
+
+    with patch("agents.base_agent.subprocess.run", return_value=mock_result):
+        result = call_gemini("prompt")
+        assert result == "plain text response"

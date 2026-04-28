@@ -1,8 +1,9 @@
+import json
 import subprocess
 
 
 def call_gemini(prompt: str, allow_modifications: bool = True, timeout: int = 120) -> str:
-    cmd = ["gemini", "-p", prompt]
+    cmd = ["gemini", "-p", prompt, "--output-format", "json"]
     if allow_modifications:
         cmd.append("--yolo")
 
@@ -14,7 +15,18 @@ def call_gemini(prompt: str, allow_modifications: bool = True, timeout: int = 12
     if result.returncode != 0:
         raise RuntimeError(result.stderr.strip() or "gemini exited with non-zero status")
 
-    output = result.stdout.strip()
+    raw = result.stdout.strip()
+    if not raw:
+        raise ValueError("gemini returned empty output")
+
+    try:
+        # extract only the JSON object (hook output may appear after it)
+        decoder = json.JSONDecoder()
+        data, _ = decoder.raw_decode(raw)
+        output = data.get("response", "").strip()
+    except (json.JSONDecodeError, AttributeError):
+        output = raw
+
     if not output:
         raise ValueError("gemini returned empty output")
 
