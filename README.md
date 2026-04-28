@@ -77,6 +77,10 @@ Logs em `logs/` — um arquivo por agente por execução.
 
 **fix_agent** — agente executor contínuo que consome as tasks do tipo `"fix"` e `"security_fix"` criadas pelas Phases 3 e 4. Roda em loop: pega próxima task pendente em `tasks.json`, chama Gemini CLI para corrigir o arquivo alvo em `workspace/`, valida a correção (roda testes se existirem), marca done. Repete até fila vazia.
 
+### Passo 6 — Phase 6 (a implementar)
+
+**qa_agent** — agente que gera testes para o código em `workspace/`, executa a suíte e analisa falhas. Fluxo: lê cada arquivo em `workspace/`, chama Gemini CLI para escrever testes unitários/integração, roda `pytest`, parseia o resultado. Para cada teste falhando cria uma task `"fix"` em `tasks.json` com contexto do erro — o `fix_agent` da Phase 5 resolve automaticamente.
+
 ### Rodar testes
 
 ```bash
