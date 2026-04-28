@@ -1,3 +1,4 @@
+import subprocess
 import pytest
 from unittest.mock import patch, MagicMock
 from agents.base_agent import call_gemini
@@ -46,4 +47,11 @@ def test_call_gemini_raises_on_nonzero_returncode():
 
     with patch("agents.base_agent.subprocess.run", return_value=mock_result):
         with pytest.raises(RuntimeError, match="gemini error"):
+            call_gemini("prompt")
+
+
+def test_call_gemini_raises_on_timeout():
+    with patch("agents.base_agent.subprocess.run",
+               side_effect=subprocess.TimeoutExpired(cmd="gemini", timeout=120)):
+        with pytest.raises(RuntimeError, match="timed out"):
             call_gemini("prompt")
