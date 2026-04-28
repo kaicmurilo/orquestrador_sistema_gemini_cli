@@ -1,0 +1,119 @@
+import sys
+import time
+from pathlib import Path
+from utils.task_manager import TaskManager
+from utils.logger import get_logger
+from agents.research_agent import ResearchAgent
+from agents.plan_agent import PlanAgent
+
+MAX_RETRIES = 3
+POLL_INTERVAL = 1  # seconds
+
+
+AGENT_MAP = {
+    "research": ResearchAgent,
+    "planning": PlanAgent,
+}
+
+
+def init_pipeline_tasks(tasks_file: Path, output_dir: Path):
+    import json
+    data = {
+        "tasks": [
+            {
+                "id": "task_research",
+                "type": "research",
+                "status": "pending",
+                "description": "Research market trends and choose best SaaS opportunity",
+                "depends_on": [],
+                "output_file": str(output_dir / "idea.md"),
+                "retries": 0,
+                "error": None
+            },
+            {
+                "id": "task_planning",
+                "type": "planning",
+                "status": "pending",
+                "description": "Generate architecture.md, stack.md, and tasks.json from idea.md",
+                "depends_on": ["task_research"],
+                "output_file": str(output_dir / "tasks.json"),
+                "retries": 0,
+                "error": None
+            }
+        ]
+    }
+    tasks_file.write_text(json.dumps(data, indent=2))
+
+
+class Orchestrator:
+    def __init__(self, tasks_file: Path, output_dir: Path, max_retries: int = MAX_RETRIES):
+        self.tasks_file = Path(tasks_file)
+        self.output_dir = Path(output_dir)
+        self.max_retries = max_retries
+        self.tm = TaskManager(self.tasks_file)
+        self.logger = get_logger("orchestrator")
+
+    def _dispatch(self, task: dict):
+        task_type = task["type"]
+        task_id = task["id"]
+
+        if task_type not in AGENT_MAP:
+            self.logger.error(f"Unknown task type: {task_type}")
+            self.tm.update_status(task_id, "blocked", error=f"no agent for type {task_type}")
+            return
+
+        import orchestrator as _self_module
+        _live_map = {
+            "research": _self_module.ResearchAgent,
+            "planning": _self_module.PlanAgent,
+        }
+        AgentClass = _live_map[task_type]
+
+        if task_type == "planning":
+            agent = AgentClass(tasks_file=self.tasks_file, output_dir=self.output_dir)
+        else:
+            agent = AgentClass(tasks_file=self.tasks_file)
+
+        retries = 0
+        while retries < self.max_retries:
+            try:
+                self.logger.info(f"Dispatching {task_type} agent for {task_id} (attempt {retries + 1})")
+                agent.run(task_id)
+                return
+            except Exception as e:
+                retries += 1
+                self.tm.increment_retries(task_id)
+                self.logger.warning(f"Task {task_id} failed (attempt {retries}): {e}")
+                if retries < self.max_retries:
+                    self.tm.update_status(task_id, "pending")
+                    time.sleep(POLL_INTERVAL)
+
+        self.logger.error(f"Task {task_id} blocked after {self.max_retries} retries")
+        self.tm.update_status(task_id, "blocked", error=f"exceeded max retries ({self.max_retries})")
+
+    def run(self):
+        self.logger.info("Orchestrator started")
+
+        while not self.tm.all_done():
+            if self.tm.any_blocked():
+                self.logger.error("Pipeline halted — blocked task detected")
+                sys.exit(1)
+
+            task = self.tm.get_next_ready_task()
+            if task is None:
+                time.sleep(POLL_INTERVAL)
+                continue
+
+            self._dispatch(task)
+
+        self.logger.info("Pipeline complete")
+
+
+if __name__ == "__main__":
+    tasks_file = Path("tasks.json")
+    output_dir = Path("output")
+    output_dir.mkdir(exist_ok=True)
+
+    init_pipeline_tasks(tasks_file, output_dir)
+    orch = Orchestrator(tasks_file=tasks_file, output_dir=output_dir)
+    orch.run()
