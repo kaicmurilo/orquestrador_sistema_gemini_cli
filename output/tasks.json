@@ -1,0 +1,146 @@
+{
+  "tasks": [
+    {
+      "id": "task_001",
+      "type": "code",
+      "status": "pending",
+      "description": "Initialize FastAPI backend application with basic configuration, CORS middleware, and root health check endpoint.",
+      "depends_on": [],
+      "output_file": "workspace/backend/main.py",
+      "retries": 0,
+      "error": null
+    },
+    {
+      "id": "task_002",
+      "type": "code",
+      "status": "pending",
+      "description": "Define SQLAlchemy models for Companies, FinancialTransactions, EmissionFactors, and ESGReports to establish the database schema.",
+      "depends_on": [
+        "task_001"
+      ],
+      "output_file": "workspace/backend/models.py",
+      "retries": 0,
+      "error": null
+    },
+    {
+      "id": "task_003",
+      "type": "code",
+      "status": "pending",
+      "description": "Implement the AI Categorization service using OpenAI GPT-4o-mini to map financial spend descriptions to EXIOBASE emission categories.",
+      "depends_on": [
+        "task_002"
+      ],
+      "output_file": "workspace/backend/services/ai_mapper.py",
+      "retries": 0,
+      "error": null
+    },
+    {
+      "id": "task_004",
+      "type": "code",
+      "status": "pending",
+      "description": "Build the Carbon Calculation engine that applies emission factors to categorized spend data to estimate Scope 1, 2, and 3 CO2e.",
+      "depends_on": [
+        "task_003"
+      ],
+      "output_file": "workspace/backend/services/calculator.py",
+      "retries": 0,
+      "error": null
+    },
+    {
+      "id": "task_005",
+      "type": "code",
+      "status": "pending",
+      "description": "Create API endpoints for ingesting financial data (mocking Codat/Plaid) and retrieving calculated carbon footprints per category.",
+      "depends_on": [
+        "task_004"
+      ],
+      "output_file": "workspace/backend/api/ingestion.py",
+      "retries": 0,
+      "error": null
+    },
+    {
+      "id": "task_006",
+      "type": "code",
+      "status": "pending",
+      "description": "Initialize Next.js 14 frontend with TypeScript, Tailwind CSS, and the basic App Router structure including a RootLayout.",
+      "depends_on": [],
+      "output_file": "workspace/frontend/app/layout.tsx",
+      "retries": 0,
+      "error": null
+    },
+    {
+      "id": "task_007",
+      "type": "code",
+      "status": "pending",
+      "description": "Develop a multi-step 'TurboTax style' Wizard component for collecting qualitative ESG disclosure data from SMB users.",
+      "depends_on": [
+        "task_006"
+      ],
+      "output_file": "workspace/frontend/components/ESGProjectWizard.tsx",
+      "retries": 0,
+      "error": null
+    },
+    {
+      "id": "task_008",
+      "type": "code",
+      "status": "pending",
+      "description": "Implement the main Analytics Dashboard page showing carbon footprint summaries, trends, and spend-based insights.",
+      "depends_on": [
+        "task_005",
+        "task_006"
+      ],
+      "output_file": "workspace/frontend/app/dashboard/page.tsx",
+      "retries": 0,
+      "error": null
+    },
+    {
+      "id": "task_009",
+      "type": "code",
+      "status": "pending",
+      "description": "Create the 'Sustainability Passport' public/shared view allowing SMBs to display their verified ESG credentials to enterprise customers.",
+      "depends_on": [
+        "task_008"
+      ],
+      "output_file": "workspace/frontend/app/passport/page.tsx",
+      "retries": 0,
+      "error": null
+    },
+    {
+      "id": "task_010",
+      "type": "code",
+      "status": "pending",
+      "description": "Implement the Report Generation service in the backend to produce formatted Markdown and PDF reports based on CSRD and GRI standards.",
+      "depends_on": [
+        "task_004"
+      ],
+      "output_file": "workspace/backend/services/report_generator.py",
+      "retries": 0,
+      "error": null
+    },
+    {
+      "id": "task_011",
+      "type": "code",
+      "status": "pending",
+      "description": "Develop API endpoints for generating, listing, and downloading ESG reports and their associated audit evidence.",
+      "depends_on": [
+        "task_010"
+      ],
+      "output_file": "workspace/backend/api/reports.py",
+      "retries": 0,
+      "error": null
+    },
+    {
+      "id": "task_012",
+      "type": "code",
+      "status": "pending",
+      "description": "Create a comprehensive README.md with setup instructions, API documentation overview, and environment variable requirements for the full stack.",
+      "depends_on": [
+        "task_009",
+        "task_011"
+      ],
+      "output_file": "workspace/README.md",
+      "retries": 0,
+      "error": null
+    }
+  ]
+}
