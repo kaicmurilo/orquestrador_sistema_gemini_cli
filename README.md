@@ -73,6 +73,10 @@ Logs em `logs/` — um arquivo por agente por execução.
 
 **security_agent** — agente que audita o código gerado em `workspace/` em busca de vulnerabilidades de segurança: injeção de SQL, XSS, secrets hardcoded, endpoints sem autenticação, dependências com CVEs conhecidos. Gera um relatório `output/security_report.md` e cria tasks de correção priorizadas por severidade.
 
+### Passo 5 — Phase 5 (a implementar)
+
+**fix_agent** — agente executor contínuo que consome as tasks do tipo `"fix"` e `"security_fix"` criadas pelas Phases 3 e 4. Roda em loop: pega próxima task pendente em `tasks.json`, chama Gemini CLI para corrigir o arquivo alvo em `workspace/`, valida a correção (roda testes se existirem), marca done. Repete até fila vazia.
+
 ### Rodar testes
 
 ```bash
