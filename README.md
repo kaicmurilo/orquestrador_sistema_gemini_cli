@@ -65,6 +65,14 @@ Logs em `logs/` — um arquivo por agente por execução.
 
 > **Dica para quando for implementar:** no Cursor, você pode desativar recaps em **Settings → General** (ou via `/config`) para reduzir ruído no chat durante sessões longas de implementação.
 
+### Passo 3 — Phase 3 (a implementar)
+
+**bug_agent** — agente que varre o código em `workspace/` continuamente em busca de bugs: lógica incorreta, edge cases não tratados, erros de tipagem, inconsistências entre módulos. Para cada bug encontrado cria uma task do tipo `"fix"` em `tasks.json` e aciona o `code_agent` para corrigir.
+
+### Passo 4 — Phase 4 (a implementar)
+
+**security_agent** — agente que audita o código gerado em `workspace/` em busca de vulnerabilidades de segurança: injeção de SQL, XSS, secrets hardcoded, endpoints sem autenticação, dependências com CVEs conhecidos. Gera um relatório `output/security_report.md` e cria tasks de correção priorizadas por severidade.
+
 ### Rodar testes
 
 ```bash
