@@ -1,0 +1,27 @@
+# Local / secrets (não versionar)
+CLAUDE.md
+.env
+.venv/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# IDE / Cursor
+.cursor/
+.cursor-context.md
+
+# Specs/planos Superpowers locais — não vão para o remoto
+docs/superpowers/
+
+# Logs de execução (mantém diretório vazio no repo)
+logs/*
+!logs/.gitkeep
+
+# Cópia gerada na raiz pelo orchestrator (canônico em output/tasks.json)
+/tasks.json
+
+# macOS
+.DS_Store

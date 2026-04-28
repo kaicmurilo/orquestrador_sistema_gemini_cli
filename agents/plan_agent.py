@@ -4,7 +4,16 @@ from agents.base_agent import call_gemini
 from utils.task_manager import TaskManager
 from utils.logger import get_logger
 
-ARCHITECTURE_PROMPT = """
+IDEA_CONSTRAINTS = """
+Restrições globais (a ideia e o plano devem obedecer):
+- Não projetar produto cujo core seja IA generativa, LLM, chatbot “inteligente” ou automação dependente de inferência paga por token.
+- Arquitetura e stack devem ser economicamente sustentáveis: poucos serviços gerenciados caros, sem necessidade de GPUs ou filas de ML.
+- Resolver problema real de usuários concretos; evitar “camada de IA” desnecessária.
+- O produto atende o mercado brasileiro: hospedagem/compliance pensados para LGPD quando houver dados pessoais, integrações típicas do país (ex.: PIX, NFS-e, gateways/adquirentes locais) apenas se fizer sentido na ideia — não invente requisitos legais; descreva o que a ideia de fato exige.
+- Documentos e UX assumem português do Brasil como padrão.
+"""
+
+ARCHITECTURE_PROMPT = IDEA_CONSTRAINTS + """
 Com base na seguinte ideia de produto, gere um documento de arquitetura de software em markdown.
 
 {idea}
@@ -16,7 +25,7 @@ Inclua:
 - ## Decisões de Design (por que esta arquitetura é adequada para o produto)
 """
 
-STACK_PROMPT = """
+STACK_PROMPT = IDEA_CONSTRAINTS + """
 Com base na seguinte ideia de produto e arquitetura, recomende um stack tecnológico em markdown.
 
 {idea}
@@ -31,7 +40,7 @@ Inclua:
 - ## Por Que Este Stack (justificativa breve por escolha)
 """
 
-TASKS_PROMPT = """
+TASKS_PROMPT = IDEA_CONSTRAINTS + """
 Com base na seguinte ideia de produto, arquitetura e stack, gere uma lista de tarefas JSON para agentes de codificação autônomos.
 
 {idea}
@@ -61,6 +70,7 @@ Regras:
 - Defina depends_on com os ids das tarefas que devem ser concluídas primeiro
 - output_file deve ser um caminho dentro de workspace/
 - Gere 8-15 tarefas cobrindo o MVP completo
+- Nenhuma tarefa pode ser integração com OpenAI, Anthropic, Gemini API, embeddings, RAG, fine-tuning ou feature “AI” genérica
 """
 
 

@@ -57,6 +57,14 @@ output/
 
 Logs em `logs/` — um arquivo por agente por execução.
 
+### Passo 2 — Phase 2 (a implementar)
+
+**Recap:** O pipeline com Gemini CLI está completo na **Phase 1**: pesquisa de mercado, planejamento de arquitetura e geração de `output/tasks.json`.
+
+**Próximo passo:** Implementar **Phase 2** com `code_agent` e `test_agent` para executar as tarefas e construir o projeto gerado em `workspace/`. O diagrama em [Como Funciona](#como-funciona) já antecipa esses agentes.
+
+> **Dica para quando for implementar:** no Cursor, você pode desativar recaps em **Settings → General** (ou via `/config`) para reduzir ruído no chat durante sessões longas de implementação.
+
 ### Rodar testes
 
 ```bash

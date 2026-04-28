@@ -24,7 +24,7 @@ def init_pipeline_tasks(tasks_file: Path, output_dir: Path):
                 "id": "task_research",
                 "type": "research",
                 "status": "pending",
-                "description": "Research market trends and choose best SaaS opportunity",
+                "description": "Pesquisar oportunidades no Brasil (mercado local) e escolher ideia barata de operar, sem IA como produto",
                 "depends_on": [],
                 "output_file": str(output_dir / "idea.md"),
                 "retries": 0,

@@ -30,7 +30,7 @@ def setup(tmp_path):
 
 def test_research_agent_writes_idea_md(setup):
     tasks_file, output_dir = setup
-    gemini_output = "# Best SaaS Idea\n\nAutomated invoice processing for SMBs."
+    gemini_output = "# Ideia Escolhida: Cobrança recorrente para PMEs\n\nAutomação de boletos sem APIs de IA."
 
     with patch("agents.research_agent.call_gemini", return_value=gemini_output):
         agent = ResearchAgent(tasks_file=tasks_file)
@@ -38,7 +38,7 @@ def test_research_agent_writes_idea_md(setup):
 
     idea_file = output_dir / "idea.md"
     assert idea_file.exists()
-    assert "SaaS" in idea_file.read_text()
+    assert "PMEs" in idea_file.read_text()
 
 
 def test_research_agent_marks_task_done(setup):

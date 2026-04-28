@@ -4,9 +4,9 @@
       "id": "task_001",
       "type": "code",
       "status": "pending",
-      "description": "Configurar o schema do Prisma (PostgreSQL) definindo modelos para Suppliers, EnterpriseBuyers, RawTransactions, ClassifiedEmissions e AuditLogs.",
+      "description": "Configurar o esquema do banco de dados PostgreSQL incluindo tabelas para usu\u00e1rios, empresas, res\u00edduos (invent\u00e1rio), transportadores, MTRs (Manifesto de Transporte de Res\u00edduos) e CDFs (Certificado de Destina\u00e7\u00e3o Final).",
       "depends_on": [],
-      "output_file": "workspace/backend/prisma/schema.prisma",
+      "output_file": "workspace/database/schema.sql",
       "retries": 0,
       "error": null
     },
@@ -14,11 +14,23 @@
       "id": "task_002",
       "type": "code",
       "status": "pending",
-      "description": "Implementar o servi\u00e7o de autentica\u00e7\u00e3o JWT no NestJS para diferenciar acessos entre PMEs e Compradores Enterprise.",
+      "description": "Implementar o servidor backend Node.js (Express/TypeScript) com configura\u00e7\u00e3o de conex\u00e3o ao PostgreSQL e middleware de autentica\u00e7\u00e3o JWT.",
       "depends_on": [
         "task_001"
       ],
-      "output_file": "workspace/backend/src/auth/auth.service.ts",
+      "output_file": "workspace/backend/src/server.ts",
+      "retries": 0,
+      "error": null
+    },
+    {
+      "id": "task_003",
+      "type": "code",
+      "status": "pending",
+      "description": "Desenvolver os endpoints de CRUD para o Invent\u00e1rio de Res\u00edduos, permitindo o registro de tipos de res\u00edduos (c\u00f3digo IBAMA), quantidades e classes (I, IIA, IIB).",
+      "depends_on": [
+        "task_002"
+      ],
+      "output_file": "workspace/backend/src/routes/inventory.ts",
       "retries": 0,
       "error": null
     },
@@ -26,9 +38,11 @@
       "id": "task_004",
       "type": "code",
       "status": "pending",
-      "description": "Criar o servi\u00e7o AI Classification Engine que utiliza a API da OpenAI para categorizar descri\u00e7\u00f5es de faturas em Escopos 1, 2 ou 3.",
-      "depends_on": [],
-      "output_file": "workspace/backend/src/ai/classification.service.ts",
+      "description": "Implementar o Worker de Integra\u00e7\u00e3o Governamental em Python/FastAPI para servir como ponte ass\u00edncrona com os portais SINIR/SIGOR.",
+      "depends_on": [
+        "task_002"
+      ],
+      "output_file": "workspace/worker/main.py",
       "retries": 0,
       "error": null
     },
@@ -36,12 +50,11 @@
       "id": "task_005",
       "type": "code",
       "status": "pending",
-      "description": "Desenvolver o Emission Calculation Engine para aplicar fatores de emiss\u00e3o (DEFRA/EPA) aos dados categorizados pela IA.",
+      "description": "Criar o script de automa\u00e7\u00e3o com Playwright no Worker Python para simular a navega\u00e7\u00e3o e preenchimento de campos b\u00e1sicos no portal MTR Digital do governo.",
       "depends_on": [
-        "task_001",
         "task_004"
       ],
-      "output_file": "workspace/backend/src/calculator/emission.service.ts",
+      "output_file": "workspace/worker/services/gov_automation.py",
       "retries": 0,
       "error": null
     },
@@ -49,11 +62,11 @@
       "id": "task_006",
       "type": "code",
       "status": "pending",
-      "description": "Implementar o conector de integra\u00e7\u00e3o com ERPs (mockando Codat.io) para extra\u00e7\u00e3o de faturas e dados cont\u00e1beis brutos.",
+      "description": "Desenvolver o servi\u00e7o de gera\u00e7\u00e3o de PDF utilizando Puppeteer para criar o documento do Plano de Gerenciamento de Res\u00edduos S\u00f3lidos (PGRS) baseado nos dados do banco.",
       "depends_on": [
-        "task_001"
+        "task_002"
       ],
-      "output_file": "workspace/backend/src/integrations/codat.service.ts",
+      "output_file": "workspace/backend/src/services/pdf_engine.ts",
       "retries": 0,
       "error": null
     },
@@ -61,11 +74,11 @@
       "id": "task_007",
       "type": "code",
       "status": "pending",
-      "description": "Criar o gerador de relat\u00f3rios Audit-Ready em formato JSON e PDF seguindo os padr\u00f5es CSRD/VSME.",
+      "description": "Implementar l\u00f3gica de monitoramento de validade de licen\u00e7as de transportadores e destinadores com envio de alertas via e-mail.",
       "depends_on": [
-        "task_005"
+        "task_003"
       ],
-      "output_file": "workspace/backend/src/reports/generator.service.ts",
+      "output_file": "workspace/backend/src/jobs/license_checker.ts",
       "retries": 0,
       "error": null
     },
@@ -73,9 +86,9 @@
       "id": "task_008",
       "type": "code",
       "status": "pending",
-      "description": "Configurar o layout principal do Frontend Next.js com suporte a temas e navega\u00e7\u00e3o condicional por tipo de usu\u00e1rio.",
+      "description": "Configurar o boilerplate do Frontend React com Vite, Tailwind CSS e suporte a PWA (Progressive Web App).",
       "depends_on": [],
-      "output_file": "workspace/frontend/src/app/layout.tsx",
+      "output_file": "workspace/frontend/vite.config.ts",
       "retries": 0,
       "error": null
     },
@@ -83,11 +96,12 @@
       "id": "task_009",
       "type": "code",
       "status": "pending",
-      "description": "Construir o Dashboard do Fornecedor PME para visualiza\u00e7\u00e3o de score ESG e status de conformidade.",
+      "description": "Construir o Dashboard de Conformidade (Semaforo) exibindo o status de regularidade ambiental, validade do PGRS e pend\u00eancias de CDF.",
       "depends_on": [
-        "task_008"
+        "task_008",
+        "task_002"
       ],
-      "output_file": "workspace/frontend/src/app/dashboard/supplier/page.tsx",
+      "output_file": "workspace/frontend/src/pages/Dashboard.tsx",
       "retries": 0,
       "error": null
     },
@@ -95,11 +109,11 @@
       "id": "task_010",
       "type": "code",
       "status": "pending",
-      "description": "Desenvolver o componente de interface para conex\u00e3o com ERPs e upload de evid\u00eancias documentais.",
+      "description": "Desenvolver o formul\u00e1rio mobile-first para emiss\u00e3o simplificada de MTR, integrando com os endpoints do backend.",
       "depends_on": [
-        "task_008"
+        "task_009"
       ],
-      "output_file": "workspace/frontend/src/components/ERPConnectionFlow.tsx",
+      "output_file": "workspace/frontend/src/pages/MTRForm.tsx",
       "retries": 0,
       "error": null
     },
@@ -107,11 +121,11 @@
       "id": "task_011",
       "type": "code",
       "status": "pending",
-      "description": "Implementar gr\u00e1ficos de visualiza\u00e7\u00e3o de pegada de carbono por categoria utilizando Recharts no frontend.",
+      "description": "Implementar o reposit\u00f3rio de documentos no frontend para listagem e download de MTRs e CDFs armazenados.",
       "depends_on": [
-        "task_009"
+        "task_010"
       ],
-      "output_file": "workspace/frontend/src/components/EmissionCharts.tsx",
+      "output_file": "workspace/frontend/src/pages/Documents.tsx",
       "retries": 0,
       "error": null
     },
@@ -119,15 +133,11 @@
       "id": "task_012",
       "type": "code",
       "status": "pending",
-      "description": "Orquestrar todos os m\u00f3dulos no AppModule do NestJS e configurar os controllers principais da API.",
+      "description": "Criar o servi\u00e7o de integra\u00e7\u00e3o com S3 (ou similar) no backend para upload e recupera\u00e7\u00e3o segura de PDFs de licen\u00e7as e certificados.",
       "depends_on": [
-        "task_002",
-        "task_004",
-        "task_005",
-        "task_006",
-        "task_007"
+        "task_002"
       ],
-      "output_file": "workspace/backend/src/app.module.ts",
+      "output_file": "workspace/backend/src/services/storage.ts",
       "retries": 0,
       "error": null
     }
