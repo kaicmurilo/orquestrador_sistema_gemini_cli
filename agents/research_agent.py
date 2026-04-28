@@ -4,22 +4,22 @@ from utils.task_manager import TaskManager
 from utils.logger import get_logger
 
 RESEARCH_PROMPT = """
-You are a market research analyst. Use web search to find current market trends and gaps.
+Você é um analista de pesquisa de mercado. Use busca na web para encontrar tendências e lacunas atuais no mercado.
 
-Research the following:
-1. Top 5 emerging SaaS/software niches with high demand and low competition in 2024-2026
-2. For each niche: problem it solves, target audience, monetization model, competitor landscape
-3. Choose the single best opportunity and justify your choice with data
+Pesquise o seguinte:
+1. Top 5 nichos emergentes de SaaS/software com alta demanda e baixa competição em 2024-2026
+2. Para cada nicho: problema que resolve, público-alvo, modelo de monetização, panorama competitivo
+3. Escolha a melhor oportunidade e justifique sua escolha com dados
 
-Output a markdown document with:
-- # Chosen Idea: [Name]
-- ## Problem Statement
-- ## Target Market
-- ## Why Now (market timing)
-- ## Monetization Model
-- ## Competitive Landscape
-- ## Key Features (MVP, 5-7 items)
-- ## Tech Stack Recommendation
+Gere um documento markdown com:
+- # Ideia Escolhida: [Nome]
+- ## Problema
+- ## Mercado-Alvo
+- ## Por Que Agora (timing de mercado)
+- ## Modelo de Monetização
+- ## Panorama Competitivo
+- ## Funcionalidades Principais (MVP, 5-7 itens)
+- ## Stack Tecnológico Recomendado
 """
 
 

@@ -5,34 +5,34 @@ from utils.task_manager import TaskManager
 from utils.logger import get_logger
 
 ARCHITECTURE_PROMPT = """
-Based on the following product idea, generate a software architecture document in markdown.
+Com base na seguinte ideia de produto, gere um documento de arquitetura de software em markdown.
 
 {idea}
 
-Include:
-- ## Overview (2-3 sentences)
-- ## Components (list each service/module with one-line description)
-- ## Data Flow (how data moves between components)
-- ## Key Design Decisions (why this architecture fits the product)
+Inclua:
+- ## Visão Geral (2-3 frases)
+- ## Componentes (liste cada serviço/módulo com descrição de uma linha)
+- ## Fluxo de Dados (como os dados se movem entre os componentes)
+- ## Decisões de Design (por que esta arquitetura é adequada para o produto)
 """
 
 STACK_PROMPT = """
-Based on the following product idea and architecture, recommend a tech stack in markdown.
+Com base na seguinte ideia de produto e arquitetura, recomende um stack tecnológico em markdown.
 
 {idea}
 
 {architecture}
 
-Include:
+Inclua:
 - ## Backend
 - ## Frontend
-- ## Database
-- ## Infrastructure
-- ## Why This Stack (brief justification per choice)
+- ## Banco de Dados
+- ## Infraestrutura
+- ## Por Que Este Stack (justificativa breve por escolha)
 """
 
 TASKS_PROMPT = """
-Based on the following product idea, architecture, and stack, generate a JSON task list for autonomous coding agents.
+Com base na seguinte ideia de produto, arquitetura e stack, gere uma lista de tarefas JSON para agentes de codificação autônomos.
 
 {idea}
 
@@ -40,27 +40,27 @@ Based on the following product idea, architecture, and stack, generate a JSON ta
 
 {stack}
 
-Return ONLY valid JSON (no markdown, no explanation) with this exact schema:
+Retorne APENAS JSON válido (sem markdown, sem explicação) com este schema exato:
 {{
   "tasks": [
     {{
       "id": "task_001",
       "type": "code",
       "status": "pending",
-      "description": "description of what to build",
+      "description": "descrição do que construir",
       "depends_on": [],
-      "output_file": "workspace/path/to/file.py",
+      "output_file": "workspace/caminho/para/arquivo.py",
       "retries": 0,
       "error": null
     }}
   ]
 }}
 
-Rules:
-- Break down into small, single-file tasks
-- Set depends_on to task ids that must complete first
-- output_file must be a path inside workspace/
-- Generate 8-15 tasks covering the full MVP
+Regras:
+- Divida em tarefas pequenas, de arquivo único
+- Defina depends_on com os ids das tarefas que devem ser concluídas primeiro
+- output_file deve ser um caminho dentro de workspace/
+- Gere 8-15 tarefas cobrindo o MVP completo
 """
 
 
