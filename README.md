@@ -11,7 +11,7 @@ python3 orchestrator.py
   ✓ Coordenação      — orchestrator + TaskManager (fila, retries, dependências)
   ✓ research_agent   — oportunidade de mercado (web search) → output/idea.md
   ✓ plan_agent       — arquitetura, stack, backlog inicial → output/
-  ○ product_agent    — PM + PO: refinar tasks.json, critérios de aceite, prioridade
+  ✓ product_agent    — PM + PO: refinar tasks.json, critérios de aceite, prioridade
   ○ tech_lead_agent  — CTO: ADRs, aderência idea.md ↔ architecture.md ↔ workspace/
   ○ ux_agent         — Designer: wireframes, fluxos, decisões de UI → output/ux/
   ○ code_agent       — implementação tarefa a tarefa → workspace/
@@ -99,7 +99,7 @@ output/
 └── tasks.json        # backlog para implementação (PM; consumido pelo Coordinator)
 ```
 
-### Fase 3 — Refinamento de produto (a implementar)
+### Fase 3 — Refinamento de produto (implementado)
 
 **Personas:** PM + PO.
 
@@ -210,7 +210,7 @@ agentesAutonomos/
 │   ├── base_agent.py        # wrapper do Gemini CLI
 │   ├── research_agent.py    # pesquisa de mercado (Fase 1)
 │   ├── plan_agent.py        # geração de arquitetura e tarefas (Fase 2)
-│   ├── product_agent.py     # refinamento de produto — a implementar (Fase 3)
+│   ├── product_agent.py     # refinamento de produto (Fase 3)
 │   ├── tech_lead_agent.py   # liderança técnica / drift — a implementar (Fase 4)
 │   ├── ux_agent.py          # wireframes e fluxos de UX — a implementar (Fase 5)
 │   ├── code_agent.py        # implementação — a implementar (Fase 6)

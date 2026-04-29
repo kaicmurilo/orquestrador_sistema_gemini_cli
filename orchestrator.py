@@ -6,6 +6,7 @@ from utils.task_manager import TaskManager
 from utils.logger import get_logger
 from agents.research_agent import ResearchAgent
 from agents.plan_agent import PlanAgent
+from agents.product_agent import ProductAgent
 
 MAX_RETRIES = 3
 POLL_INTERVAL = 1  # seconds
@@ -14,35 +15,69 @@ POLL_INTERVAL = 1  # seconds
 AGENT_MAP = {
     "research": ResearchAgent,
     "planning": PlanAgent,
+    "product": ProductAgent,
 }
 
 
+PIPELINE_TASKS = [
+    {
+        "id": "task_research",
+        "type": "research",
+        "status": "pending",
+        "description": "Pesquisar oportunidades no Brasil (mercado local) e escolher ideia barata de operar, sem IA como produto",
+        "depends_on": [],
+        "retries": 0,
+        "error": None,
+    },
+    {
+        "id": "task_planning",
+        "type": "planning",
+        "status": "pending",
+        "description": "Generate architecture.md, stack.md, and tasks.json from idea.md",
+        "depends_on": ["task_research"],
+        "retries": 0,
+        "error": None,
+    },
+    {
+        "id": "task_product",
+        "type": "product",
+        "status": "pending",
+        "description": "Enriquecer tasks.json com critérios de aceite, prioridade e dependências (PM + PO)",
+        "depends_on": ["task_planning"],
+        "retries": 0,
+        "error": None,
+    },
+]
+
+
 def init_pipeline_tasks(tasks_file: Path, output_dir: Path):
-    data = {
-        "tasks": [
-            {
-                "id": "task_research",
-                "type": "research",
-                "status": "pending",
-                "description": "Pesquisar oportunidades no Brasil (mercado local) e escolher ideia barata de operar, sem IA como produto",
-                "depends_on": [],
-                "output_file": str(output_dir / "idea.md"),
-                "retries": 0,
-                "error": None
-            },
-            {
-                "id": "task_planning",
-                "type": "planning",
-                "status": "pending",
-                "description": "Generate architecture.md, stack.md, and tasks.json from idea.md",
-                "depends_on": ["task_research"],
-                "output_file": str(output_dir / "tasks.json"),
-                "retries": 0,
-                "error": None
-            }
-        ]
+    """Initialize tasks.json if missing, or merge new pipeline tasks without resetting done ones."""
+    # Build canonical tasks with output_file resolved
+    canonical = []
+    output_file_map = {
+        "task_research": str(output_dir / "idea.md"),
+        "task_planning": str(output_dir / "tasks.json"),
+        "task_product": str(output_dir / "tasks.json"),
     }
-    tasks_file.write_text(json.dumps(data, indent=2))
+    for t in PIPELINE_TASKS:
+        entry = dict(t)
+        entry["output_file"] = output_file_map.get(t["id"], "")
+        canonical.append(entry)
+
+    if not tasks_file.exists():
+        tasks_file.write_text(json.dumps({"tasks": canonical}, indent=2))
+        return
+
+    # File exists — merge: preserve existing tasks, append missing ones
+    existing = json.loads(tasks_file.read_text())
+    existing_tasks = existing.get("tasks", [])
+    existing_ids = {t["id"] for t in existing_tasks}
+
+    for entry in canonical:
+        if entry["id"] not in existing_ids:
+            existing_tasks.append(entry)
+
+    tasks_file.write_text(json.dumps({"tasks": existing_tasks}, indent=2))
 
 
 class Orchestrator:
@@ -68,7 +103,7 @@ class Orchestrator:
         retries = 0
         while retries < self.max_retries:
             try:
-                if task_type == "planning":
+                if task_type in ("planning", "product"):
                     agent = AgentClass(tasks_file=self.tasks_file, output_dir=self.output_dir)
                 else:
                     agent = AgentClass(tasks_file=self.tasks_file)

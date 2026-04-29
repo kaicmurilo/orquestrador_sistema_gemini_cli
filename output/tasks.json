@@ -8,7 +8,16 @@
       "depends_on": [],
       "output_file": "workspace/database/schema.sql",
       "retries": 0,
-      "error": null
+      "error": null,
+      "acceptance_criteria": [
+        "Script SQL executa sem erros em inst\u00e2ncia PostgreSQL 15+.",
+        "Tabela 'companies' possui campos para CNPJ e data de validade de licen\u00e7a ambiental.",
+        "Tabela 'wastes' inclui c\u00f3digo IBAMA, classifica\u00e7\u00e3o de periculosidade e unidade de medida.",
+        "Relacionamentos (FKs) garantem integridade entre MTR e seu respectivo CDF.",
+        "\u00cdndices criados para busca r\u00e1pida por CNPJ e per\u00edodo de emiss\u00e3o de MTR."
+      ],
+      "priority": "high",
+      "notes": "Funda\u00e7\u00e3o indispens\u00e1vel para conformidade e trilha de auditoria."
     },
     {
       "id": "task_002",
@@ -20,7 +29,15 @@
       ],
       "output_file": "workspace/backend/src/server.ts",
       "retries": 0,
-      "error": null
+      "error": null,
+      "acceptance_criteria": [
+        "Servidor inicia e conecta ao banco de dados com sucesso via vari\u00e1veis de ambiente.",
+        "Middleware JWT valida tokens no Header 'Authorization' e retorna 401 para requisi\u00e7\u00f5es n\u00e3o autorizadas.",
+        "Endpoint '/health' dispon\u00edvel para monitoramento de status da API.",
+        "Configura\u00e7\u00e3o de CORS permitindo apenas o dom\u00ednio do frontend definido."
+      ],
+      "priority": "high",
+      "notes": "Base de seguran\u00e7a e conectividade para todos os m\u00f3dulos."
     },
     {
       "id": "task_003",
@@ -32,7 +49,15 @@
       ],
       "output_file": "workspace/backend/src/routes/inventory.ts",
       "retries": 0,
-      "error": null
+      "error": null,
+      "acceptance_criteria": [
+        "Endpoints GET/POST/PUT/DELETE funcionais para '/inventory'.",
+        "Valida\u00e7\u00e3o de entrada impede registros sem c\u00f3digo IBAMA ou classe de res\u00edduo.",
+        "C\u00e1lculo de saldo acumulado por tipo de res\u00edduo dispon\u00edvel via GET.",
+        "Somente usu\u00e1rios vinculados \u00e0 empresa podem visualizar/editar seu invent\u00e1rio."
+      ],
+      "priority": "high",
+      "notes": "Necess\u00e1rio para alimentar os dados que ser\u00e3o enviados ao SINIR via MTR."
     },
     {
       "id": "task_004",
@@ -44,7 +69,14 @@
       ],
       "output_file": "workspace/worker/main.py",
       "retries": 0,
-      "error": null
+      "error": null,
+      "acceptance_criteria": [
+        "Aplica\u00e7\u00e3o FastAPI inicia de forma independente do backend Node.js.",
+        "Comunica\u00e7\u00e3o entre Backend e Worker estabelecida (via Redis ou HTTP interno).",
+        "Estrutura para logging de tentativas de acesso aos portais do governo implementada."
+      ],
+      "priority": "medium",
+      "notes": "Abstra\u00e7\u00e3o necess\u00e1ria para lidar com a instabilidade dos sites governamentais."
     },
     {
       "id": "task_005",
@@ -56,7 +88,15 @@
       ],
       "output_file": "workspace/worker/services/gov_automation.py",
       "retries": 0,
-      "error": null
+      "error": null,
+      "acceptance_criteria": [
+        "Script realiza login autom\u00e1tico no portal SINIR (mock ou sandbox).",
+        "Playwright preenche os dados do gerador, transportador e res\u00edduos corretamente.",
+        "Implementa\u00e7\u00e3o de l\u00f3gica de 'retry' em caso de timeout do portal governamental.",
+        "Retorno do n\u00famero do MTR gerado e captura do PDF oficial."
+      ],
+      "priority": "high",
+      "notes": "Core Business: Automar a burocracia do MTR \u00e9 o principal diferencial do produto."
     },
     {
       "id": "task_006",
@@ -68,7 +108,15 @@
       ],
       "output_file": "workspace/backend/src/services/pdf_engine.ts",
       "retries": 0,
-      "error": null
+      "error": null,
+      "acceptance_criteria": [
+        "Gera\u00e7\u00e3o de PDF a partir de template HTML/React din\u00e2mico.",
+        "Documento PGRS inclui cabe\u00e7alho com dados da empresa e lista consolidada do invent\u00e1rio.",
+        "Layout otimizado para impress\u00e3o (A4) com numera\u00e7\u00e3o de p\u00e1ginas.",
+        "Arquivo gerado salvo temporariamente ou enviado direto para o buffer de resposta."
+      ],
+      "priority": "medium",
+      "notes": "Entrega valor no 'Up-sell' do produto (Gerador de PGRS)."
     },
     {
       "id": "task_007",
@@ -80,7 +128,14 @@
       ],
       "output_file": "workspace/backend/src/jobs/license_checker.ts",
       "retries": 0,
-      "error": null
+      "error": null,
+      "acceptance_criteria": [
+        "Job di\u00e1rio identifica licen\u00e7as que vencem em menos de 30 dias.",
+        "Disparo de e-mail (mock ou integra\u00e7\u00e3o) para o administrador da empresa.",
+        "Status da empresa no Dashboard muda para 'Aten\u00e7\u00e3o' quando h\u00e1 licen\u00e7as pr\u00f3ximas do vencimento."
+      ],
+      "priority": "medium",
+      "notes": "Funcionalidade cr\u00edtica para evitar multas por operar com transportadores irregulares."
     },
     {
       "id": "task_008",
@@ -90,7 +145,15 @@
       "depends_on": [],
       "output_file": "workspace/frontend/vite.config.ts",
       "retries": 0,
-      "error": null
+      "error": null,
+      "acceptance_criteria": [
+        "Projeto inicia em modo dev e build sem erros.",
+        "Tailwind CSS configurado e funcional em componentes de exemplo.",
+        "Manifesto PWA configurado (\u00edcones e nome do app).",
+        "App instal\u00e1vel via browser no Android/iOS (Service Worker b\u00e1sico ativo)."
+      ],
+      "priority": "high",
+      "notes": "Fundamental para opera\u00e7\u00e3o mobile no p\u00e1tio de res\u00edduos."
     },
     {
       "id": "task_009",
@@ -103,7 +166,14 @@
       ],
       "output_file": "workspace/frontend/src/pages/Dashboard.tsx",
       "retries": 0,
-      "error": null
+      "error": null,
+      "acceptance_criteria": [
+        "Indicadores visuais (Verde/Amarelo/Vermelho) refletem dados reais da API.",
+        "Lista de 'A\u00e7\u00f5es Requeridas' (ex: MTRs sem CDF h\u00e1 mais de 30 dias).",
+        "Layout responsivo que prioriza informa\u00e7\u00f5es cr\u00edticas em telas pequenas."
+      ],
+      "priority": "high",
+      "notes": "Vis\u00e3o executiva da conformidade para o dono do neg\u00f3cio."
     },
     {
       "id": "task_010",
@@ -111,11 +181,20 @@
       "status": "pending",
       "description": "Desenvolver o formul\u00e1rio mobile-first para emiss\u00e3o simplificada de MTR, integrando com os endpoints do backend.",
       "depends_on": [
-        "task_009"
+        "task_009",
+        "task_003"
       ],
       "output_file": "workspace/frontend/src/pages/MTRForm.tsx",
       "retries": 0,
-      "error": null
+      "error": null,
+      "acceptance_criteria": [
+        "Formul\u00e1rio permite sele\u00e7\u00e3o de transportador e res\u00edduos pr\u00e9-cadastrados.",
+        "Valida\u00e7\u00e3o de campos obrigat\u00f3rios antes do envio.",
+        "Feedback visual de 'Processando' enquanto o Worker comunica com o governo.",
+        "Exibi\u00e7\u00e3o de QR Code ou link para download do MTR ap\u00f3s sucesso."
+      ],
+      "priority": "high",
+      "notes": "Ferramenta de uso di\u00e1rio do operador de campo."
     },
     {
       "id": "task_011",
@@ -123,11 +202,20 @@
       "status": "pending",
       "description": "Implementar o reposit\u00f3rio de documentos no frontend para listagem e download de MTRs e CDFs armazenados.",
       "depends_on": [
-        "task_010"
+        "task_010",
+        "task_012"
       ],
       "output_file": "workspace/frontend/src/pages/Documents.tsx",
       "retries": 0,
-      "error": null
+      "error": null,
+      "acceptance_criteria": [
+        "Listagem paginada de todos os documentos emitidos.",
+        "Filtros por per\u00edodo e tipo de documento (MTR/CDF).",
+        "Download direto do PDF original do governo atrav\u00e9s do link seguro do S3.",
+        "Indica\u00e7\u00e3o visual de MTRs que j\u00e1 possuem CDF vinculado."
+      ],
+      "priority": "medium",
+      "notes": "Garante que o cliente sempre tenha os comprovantes para fiscaliza\u00e7\u00e3o."
     },
     {
       "id": "task_012",
@@ -139,7 +227,15 @@
       ],
       "output_file": "workspace/backend/src/services/storage.ts",
       "retries": 0,
-      "error": null
+      "error": null,
+      "acceptance_criteria": [
+        "Fun\u00e7\u00e3o de upload armazena arquivos com nomes \u00fanicos e metadados da empresa.",
+        "Implementa\u00e7\u00e3o de URLs assinadas (presigned URLs) para download seguro.",
+        "Tratamento de erro para falhas de conex\u00e3o com o provedor de storage.",
+        "Criptografia em repouso configurada para os arquivos."
+      ],
+      "priority": "high",
+      "notes": "Cr\u00edtico para soberania e seguran\u00e7a dos documentos legais."
     }
   ]
 }
